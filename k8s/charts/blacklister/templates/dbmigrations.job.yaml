@@ -1,0 +1,86 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "blacklister.fullname" . }}-waitfordb
+  annotations:
+    # We need to have a database to migrate, so use post-install for initial installation
+    "helm.sh/hook": post-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    "helm.sh/hook-weight": "0"
+  labels:
+    app.kubernetes.io/component: db
+    {{- include "blacklister.labels" . | nindent 4 }}
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: 300
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: waitfordb
+        image: postgres:12
+        command: ["/bin/bash", "-c"]
+        args:
+          - 'until pg_isready; do sleep 5; done'
+        resources:
+          {{- toYaml .Values.dbMigrateResources | nindent 10 }}
+        env:
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.dbName }}-{{ .Values.schemaName }}-owner-user.ops-{{ include "blacklister.fullname" . }}-db.credentials.postgresql.acid.zalan.do
+              key: username
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.dbName }}-{{ .Values.schemaName }}-owner-user.ops-{{ include "blacklister.fullname" . }}-db.credentials.postgresql.acid.zalan.do
+              key: password
+        - name: PGHOST
+          value: 'ops-{{ include "blacklister.fullname" . }}-db'
+        - name: PGDATABASE
+          value: '{{ .Values.dbName }}'
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "blacklister.fullname" . }}-dbmigrations
+  annotations:
+    # We need to have a database to migrate, so use post-install for initial installation
+    "helm.sh/hook": post-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation
+    "helm.sh/hook-weight": "10"
+  labels:
+    app.kubernetes.io/component: db
+    {{- include "blacklister.labels" . | nindent 4 }}
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: 300
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: dbmigrations
+        image: localhost:5000/blacklister-dbmigrations:0.0.1
+        imagePullPolicy: Always
+        args:
+          - "-path=/migrations/"
+          - "-database=$(DBURI)"
+          - "{{ .Values.dbMigrationOp }}"
+          {{- range .Values.dbMigrationArgs }}
+          - {{ . | quote }}
+          {{- end }}    
+        resources:
+          {{- toYaml .Values.dbMigrateResources | nindent 10 }}
+        env:
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.dbName }}-{{ .Values.schemaName }}-owner-user.ops-{{ include "blacklister.fullname" . }}-db.credentials.postgresql.acid.zalan.do
+              key: username
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.dbName }}-{{ .Values.schemaName }}-owner-user.ops-{{ include "blacklister.fullname" . }}-db.credentials.postgresql.acid.zalan.do
+              key: password
+        - name: DBURI
+          value: 'postgres://ops-{{ include "blacklister.fullname" . }}-db:5432/{{ .Values.dbName }}?sslmode=require'

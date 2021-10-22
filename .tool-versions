@@ -1,0 +1,6 @@
+golang 1.16.3
+gomigrate 4.15.0
+kubectl 1.21.5
+helm 3.7.1
+kind 0.11.1
+make 4.3

@@ -1,0 +1,10 @@
+------------------------------------------------------
+Visit http://127.0.0.1:8080 to use your application
+To use the application:
+1. Calculate the square of a number:
+  `curl -XPOST http://localhost:8080/?n=2`
+2. Blacklist your IP:
+  `curl -XGET http://localhost:8080/blacklisted`
+3. Get logs:
+  `kubectl logs --context kind-dev -n dev-blacklister -l 'app.kubernetes.io/name=blacklister' -f`
+------------------------------------------------------

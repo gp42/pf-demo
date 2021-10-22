@@ -1,0 +1,43 @@
+# This service is only intended for local development purposes
+# to forward ports from Kind to localhost for easy dev workflow.
+{{- if .Values.nodePortForwarderEnabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: '{{ include "blacklister.fullname" . }}-db-svc-nodeport-forwarder'
+  labels:
+    app.kubernetes.io/component: nodeport-forwarder
+    {{- include "blacklister.labels" . | nindent 4 }}
+spec:
+  selector:
+    application: spilo
+    cluster-name: '{{ .Values.teamId }}-{{ include "blacklister.fullname" . }}-db'
+    spilo-role: master
+    team: "{{ .Values.teamId }}"
+  ports:
+  - name: postgresql
+    port: 5432
+    protocol: TCP
+    targetPort: 5432
+    nodePort: 30100
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: '{{ include "blacklister.fullname" . }}-svc-nodeport-forwarder'
+  labels:
+    app.kubernetes.io/component: nodeport-forwarder
+    {{- include "blacklister.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "blacklister.selectorLabels" . | nindent 4 }}
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: {{ .Values.service.port }}
+    nodePort: 30101
+  type: NodePort
+{{- end }}

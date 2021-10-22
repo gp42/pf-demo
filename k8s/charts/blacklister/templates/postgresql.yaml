@@ -1,0 +1,23 @@
+apiVersion: "acid.zalan.do/v1"
+kind: postgresql
+metadata:
+  name: '{{ .Values.teamId }}-{{ include "blacklister.fullname" . }}-db'
+  labels:
+    app.kubernetes.io/component: db
+    {{- include "blacklister.labels" . | nindent 4 }}
+spec:
+  teamId: "{{ .Values.teamId }}"
+  volume:
+    size: {{ .Values.dbVolumeSize }}
+  numberOfInstances: 2
+  users:
+    dbadmin:  # database owner
+    - superuser
+    - createdb
+  # https://github.com/zalando/postgres-operator/blob/master/docs/user.md#default-login-roles
+  preparedDatabases:
+{{ tpl .Values.preparedDatabases $ | indent 4 }}
+  postgresql:
+    version: "12"
+  resources:
+    {{- toYaml .Values.dbResources | nindent 4 }}

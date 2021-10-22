@@ -1,0 +1,104 @@
+# Default values for blacklister.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+logLevel: debug
+
+image:
+  registry: docker.io
+  name: blacklister-prod
+  tag: "0.0.1"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 8080
+
+# Blacklister resource configuration
+resources:
+  limits:
+    cpu: 300m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# DB Migration Operation and arguments for operation
+# see https://github.com/golang-migrate/migrate/blob/master/cmd/migrate/README.md#usage
+dbMigrationOp: "up"
+dbMigrationArgs: []
+
+# Database name
+dbName: blacklister
+# Schema name
+schemaName: blacklister
+# Name of the team cluster belongs to (required parameter for Zalando postgres-operator)
+# https://github.com/zalando/postgres-operator/blob/master/docs/reference/cluster_manifest.md#top-level-parameters
+teamId: ops
+
+# Preconfigured databases, schemas and users
+# https://github.com/zalando/postgres-operator/blob/master/docs/user.md#prepared-databases-with-roles-and-default-privileges
+preparedDatabases: |
+  {{ .Values.dbName }}:
+    defaultUsers: true
+    schemas:
+      {{ .Values.schemaName }}:
+        defaultUsers: true
+
+dbVolumeSize: 1Gi
+
+# Database container resources
+dbResources:
+  requests:
+    cpu: 100m
+    memory: 100Mi
+  limits:
+    cpu: 500m
+    memory: 500Mi
+
+# Database migration job container resources
+dbMigrateResources:
+  requests:
+    cpu: 100m
+    memory: 100Mi
+  limits:
+    cpu: 100m
+    memory: 100Mi
+
+# Enable to forward ports from Kind to localhost for easy dev workflow
+# see templates/svc-forwarder.svc.yaml for forwarding setup.
+# IMPORTANT: only use on development environments.
+nodePortForwarderEnabled: false

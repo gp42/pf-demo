@@ -23,7 +23,7 @@ You can check dependency versions in `.tool-versions` file.
 Suggested way to install dependencies is to use '[asdf](https://github.com/asdf-vm/asdf)' tool
 (except 'docker' and 'make').
 If you have the tool installed, run:
-```
+```bash
 # make sure all relevant plugins are installed
 cat .tool-versions |\
   while read p; do
@@ -35,16 +35,17 @@ asdf install
 ```
 
 Check docker manual for docker installation instructions:
-[get-docker](https://docs.docker.com/get-docker/).
+[get docker](https://docs.docker.com/get-docker/).
 
 ## Running
-Make sure you have all dependencies available.
-Use the following command to set up all dependencies and run the application:
+**IMPORTANT:** Make sure you have all dependencies available (see instructions above).
+
+Use the following command to run the application:
 ```
 make all
 ```
 
-This will perform the following operations:
+This will perform the following actions:
 - Start a local Kubernetes cluster using Kind
 - Start a local Docker registry
 - Build Docker images and push them to local registry
@@ -58,14 +59,30 @@ make delete-all
 
 ## Using application
 1. Calculate the square of a number:
-  `curl -XPOST http://localhost:8080/?n=2`
+```bash
+curl -XPOST http://localhost:8080/?n=2
+```
 2. Blacklist your IP:
-  `curl -XGET http://localhost:8080/blacklisted`
+```bash
+curl -XGET http://localhost:8080/blacklisted
+```
 3. Get logs:
-  `kubectl logs --context kind-dev -n dev-blacklister -l 'app.kubernetes.io/name=blacklister' -f`
+```bash
+kubectl logs --context kind-dev -n dev-blacklister -l 'app.kubernetes.io/name=blacklister' -f
+```
 
 ## Development
-You can run the application locally and use the database from the local Kind cluster.
+You can run the application locally and use the database from the local Kind cluster. To do that you
+will need to set `DB_HOST` to `localhost` and get the DB credentials from secret:
+```bash
+export DB_HOST=localhost
+export DB_USER="$(kubectl get secret --context kind-dev -n dev-blacklister "blacklister-blacklister-writer-user.ops-dev-blacklister-db.credentials.postgresql.acid.zalan.do" -o go-template='{{.data.username|base64decode}}')"
+export DB_PASSWORD="$(kubectl get secret  --context kind-dev -n dev-blacklister "blacklister-blacklister-writer-user.ops-dev-blacklister-db.credentials.postgresql.acid.zalan.do" -o go-template='{{.data.password|base64decode}}')"
+
+# Run the application
+./build/blacklister-darwin-amd64 -log-level debug -dev -listen-address "0.0.0.0:8081"
+```
+
 Here is a list of helpers to aid development process:
 * `make migrate-up` - Run DB migrations
 * `make migrate-down` - Rollback last DB migration
@@ -75,6 +92,7 @@ Here is a list of helpers to aid development process:
 * `make test` - Run tests
 * `make docker` - Build docker images and push to local registry
 * `make deploy` - Deploy Helm chart
+* `make help` - Display help message
 
 You can also access code reference documentation with: `make godoc` - this will start a local godoc
 webserver (see link in the command output).

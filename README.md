@@ -1,5 +1,4 @@
 # Blacklister
-[![Go Report Card](https://goreportcard.com/badge/github.com/gp42/pf-demo)](https://goreportcard.com/report/github.com/gp42/pf-demo)
 
 This application does the following:
 * It responds to the URL like 'http://host/?n=x' and returns `n*n`.

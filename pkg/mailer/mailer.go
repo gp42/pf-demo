@@ -1,4 +1,4 @@
-// Mail operations package
+// Package mailer contains mail operations
 package mailer
 
 import (
@@ -68,9 +68,7 @@ func (m *Mailer) Send(ctx *context.Context, subject, body string) {
 		if err != nil {
 			log.Error(err, "Failed to send email")
 			return
-		} else {
-			log.V(1).Info("Email sent")
-			return
 		}
+		log.V(1).Info("Email sent")
 	}()
 }

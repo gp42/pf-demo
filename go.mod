@@ -12,5 +12,6 @@ require (
 	github.com/lib/pq v1.10.3 // indirect
 	github.com/xhit/go-simple-mail/v2 v2.10.0 // indirect
 	go.uber.org/zap v1.19.1 // indirect
+	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
 	golang.org/x/tools v0.1.7 // indirect
 )

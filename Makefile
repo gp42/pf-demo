@@ -61,6 +61,7 @@ build:
 lint:
 	go vet ./...
 	go fmt ./...
+	golint ./... || true
 
 .PHONY: test
 test: lint

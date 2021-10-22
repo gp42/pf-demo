@@ -25,7 +25,7 @@ type Handler struct {
 	Mailer *m.Mailer
 }
 
-// Handler for Healthcheck endpoint
+// Healthz handler for Healthcheck endpoint
 // This check should have some logic to check if the application is healthy
 func (h *Handler) Healthz(w http.ResponseWriter, r *http.Request) {
 	log := logr.FromContextOrDiscard(r.Context()).WithValues("handler", "status")
@@ -37,7 +37,7 @@ func (h *Handler) Healthz(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Handler for calculating square of n parameter
+// Square handler for calculating square of n parameter
 // It relies on the 'n' query parameter and returns n*n
 func (h *Handler) Square(w http.ResponseWriter, r *http.Request) {
 	log := logr.FromContextOrDiscard(r.Context()).WithValues("handler", "square")
@@ -72,7 +72,7 @@ func getSquareNumberFromString(nStr string) (*string, error) {
 	return &r, nil
 }
 
-// Handler for blacklisting a client
+// Blacklisted handler for blacklisting a client
 // It will skip localhost IPv4 and IPv6 addresses, and perform the following
 // operations
 // - Add db record about blacklisted IP

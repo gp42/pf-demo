@@ -12,7 +12,7 @@ import (
 	m "github.com/gp42/pf-demo/pkg/mailer"
 )
 
-// HTTP server object
+// Server stores HTTP server configuration
 type Server struct {
 	httpServer     *http.Server
 	router         *mux.Router
@@ -22,7 +22,7 @@ type Server struct {
 	tlsCertKeyPath *string
 }
 
-// Create a new HTTP server
+// NewServer creates a new HTTP server
 // listenAddr must be in format: "<INTERFACE_ADDRESS>:<PORT>"
 func NewServer(listenAddr string, dbConn *db.DBConnection, mailer *m.Mailer, logger *logr.Logger, certPath, certKeyPath *string) *Server {
 	log := logger.WithValues("server_addr", listenAddr)
@@ -37,9 +37,9 @@ func NewServer(listenAddr string, dbConn *db.DBConnection, mailer *m.Mailer, log
 	// Another approach might be to use custom healthchecker headers to verify request source
 	rHealth := router.PathPrefix("/healthz").Subrouter()
 	rHealth.Path("").Methods("GET", "HEAD").HandlerFunc(handler.Healthz)
-	rApi := router.PathPrefix("").Subrouter()
-	rApi.Use(requestMiddleware.RequestMiddleware)
-	initRoutes(rApi, &handler)
+	rAPI := router.PathPrefix("").Subrouter()
+	rAPI.Use(requestMiddleware.RequestMiddleware)
+	initRoutes(rAPI, &handler)
 
 	httpServer := &http.Server{
 		Addr:    listenAddr,

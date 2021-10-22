@@ -1,4 +1,4 @@
-// Database connection logic, data accessor functions and model
+// Package db contains db connection logic, data accessor functions and model
 package db
 
 import (
@@ -6,10 +6,11 @@ import (
 	"fmt"
 
 	"github.com/go-logr/logr"
+	// Load postgres driver
 	_ "github.com/lib/pq"
 )
 
-// Database connection object which keeps datbase connection handler and
+// DBConnection object which keeps database connection handler and
 // provides data accessor functions
 type DBConnection struct {
 	param         *DBConnectionParams
@@ -18,7 +19,7 @@ type DBConnection struct {
 	log           *logr.Logger
 }
 
-// Parameters for a database connection
+// DBConnectionParams are parameters for a database connection
 type DBConnectionParams struct {
 	Host     *string
 	Port     *int
@@ -28,7 +29,7 @@ type DBConnectionParams struct {
 	SSLMode  *string
 }
 
-// Create a new database connection
+// NewDBConnection creates a new database connection
 func NewDBConnection(dbPool *sql.DB, c *DBConnectionParams, logger *logr.Logger) *DBConnection {
 	db := &DBConnection{
 		param:  c,
@@ -42,7 +43,7 @@ func NewDBConnection(dbPool *sql.DB, c *DBConnectionParams, logger *logr.Logger)
 	return db
 }
 
-// Initialize connection to the database
+// InitConnection initializes a connection to the database
 func (d *DBConnection) InitConnection() error {
 	var err error
 	d.dbPool, err = sql.Open("postgres", d.connectionStr)

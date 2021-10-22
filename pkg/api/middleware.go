@@ -19,7 +19,7 @@ type Middleware struct {
 	Log *logr.Logger
 }
 
-// Request Middleware assigns a unique ID to each request and verifies that IP address
+// RequestMiddleware assigns a unique ID to each request and verifies that IP address
 // is not blacklisted.
 func (a *Middleware) RequestMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -51,7 +51,7 @@ func (a *Middleware) RequestMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// Find client IP address from an HTTP request.
+// RequestToIP finds client IP address from an HTTP request.
 // HTTP Request RemoteAddr provides us with the address of the client or last
 // proxy, therefore we apply some logic to provide more reliable results
 //

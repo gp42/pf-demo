@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Add or update a Blacklisted record in the database
+// UpsertBlacklistRecord adds or updates a Blacklisted record in the database
 func (d *DBConnection) UpsertBlacklistRecord(ctx *context.Context, blockIP string, t time.Time) error {
 	sqlStatement := `
 		INSERT INTO blacklists (block_ip, block_timestamp)
@@ -23,7 +23,7 @@ func (d *DBConnection) UpsertBlacklistRecord(ctx *context.Context, blockIP strin
 	return nil
 }
 
-// Check if the provided IP address is present in the blacklisted database
+// IsIPBlacklisted checks if the provided IP address is present in the blacklisted database
 func (d *DBConnection) IsIPBlacklisted(ctx *context.Context, blockIP string) (bool, error) {
 	sqlStatement := `
 		SELECT id FROM blacklists
